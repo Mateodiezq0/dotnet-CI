@@ -10,3 +10,4 @@ app.MapGet("/wordle/check", (string palabra) =>
 });
 
 app.Run();
+//aaa
