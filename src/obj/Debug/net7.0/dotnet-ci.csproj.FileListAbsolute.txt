@@ -1,0 +1,15 @@
+C:\Github\dotnet-CI\src\bin\Debug\net7.0\dotnet-ci.exe
+C:\Github\dotnet-CI\src\bin\Debug\net7.0\dotnet-ci.deps.json
+C:\Github\dotnet-CI\src\bin\Debug\net7.0\dotnet-ci.runtimeconfig.json
+C:\Github\dotnet-CI\src\bin\Debug\net7.0\dotnet-ci.dll
+C:\Github\dotnet-CI\src\bin\Debug\net7.0\dotnet-ci.pdb
+C:\Github\dotnet-CI\src\obj\Debug\net7.0\dotnet-ci.GeneratedMSBuildEditorConfig.editorconfig
+C:\Github\dotnet-CI\src\obj\Debug\net7.0\dotnet-ci.AssemblyInfoInputs.cache
+C:\Github\dotnet-CI\src\obj\Debug\net7.0\dotnet-ci.AssemblyInfo.cs
+C:\Github\dotnet-CI\src\obj\Debug\net7.0\dotnet-ci.csproj.CoreCompileInputs.cache
+C:\Github\dotnet-CI\src\obj\Debug\net7.0\dotnet-ci.sourcelink.json
+C:\Github\dotnet-CI\src\obj\Debug\net7.0\dotnet-ci.dll
+C:\Github\dotnet-CI\src\obj\Debug\net7.0\refint\dotnet-ci.dll
+C:\Github\dotnet-CI\src\obj\Debug\net7.0\dotnet-ci.pdb
+C:\Github\dotnet-CI\src\obj\Debug\net7.0\dotnet-ci.genruntimeconfig.cache
+C:\Github\dotnet-CI\src\obj\Debug\net7.0\ref\dotnet-ci.dll

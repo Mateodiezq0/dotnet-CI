@@ -10,12 +10,12 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("dotnet-ci.Tests")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("dotnet-ci")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1a2e460594294b90250d738d5bd35d947aae8aaa")]
-[assembly: System.Reflection.AssemblyProductAttribute("dotnet-ci.Tests")]
-[assembly: System.Reflection.AssemblyTitleAttribute("dotnet-ci.Tests")]
+[assembly: System.Reflection.AssemblyProductAttribute("dotnet-ci")]
+[assembly: System.Reflection.AssemblyTitleAttribute("dotnet-ci")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
 
 // Generado por la clase WriteCodeFragment de MSBuild.
