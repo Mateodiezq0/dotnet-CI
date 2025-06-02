@@ -4,22 +4,26 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                bat 'dotnet build'
+                sh 'dotnet build'
             }
         }
+
         stage('Test') {
             steps {
-                bat 'dotnet test'
+                sh 'dotnet test'
             }
         }
+
         stage('Publish') {
             steps {
-                bat 'dotnet publish -c Release -o app/publish'
+                sh 'dotnet publish -c Release -o ./out'
             }
         }
+
         stage('Deploy') {
             steps {
-                bat 'deploy-local.bat'
+                // Paso opcional dependiendo de tu entorno
+                sh 'echo "Desplegando..."'
             }
         }
     }
