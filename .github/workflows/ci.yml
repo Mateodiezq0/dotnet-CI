@@ -1,4 +1,4 @@
-name: .NET CI + Coverage
+name: .NET CI + Coverage (local report)
 
 on:
   push:
@@ -42,9 +42,3 @@ jobs:
             -reporttypes:Html
         env:
           PATH: /home/runner/.dotnet/tools:/usr/bin:/bin
-
-      - name: Upload coverage report as artifact
-        uses: actions/upload-artifact@v2.3.1
-        with:
-          name: coverage-report
-          path: coverage-report
