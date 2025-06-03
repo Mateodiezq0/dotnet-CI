@@ -45,3 +45,13 @@ jobs:
       
       - name: Docker build
         run: docker build -t dotnet-ci-app .
+      
+            - name: Login to Docker Hub
+        if: success()
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Docker push
+        if: success()
+        run: |
+          docker tag dotnet-ci-app ${{ secrets.DOCKER_USERNAME }}/dotnet-ci-app
+          docker push ${{ secrets.DOCKER_USERNAME }}/dotnet-ci-app
