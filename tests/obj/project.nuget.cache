@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "Z3h4L5qdvqU=",
+  "dgSpecHash": "yB4HTEbJfUI=",
   "success": true,
   "projectFilePath": "C:\\Github\\dotnet-CI\\tests\\dotnet-ci.Tests.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\ASUS\\.nuget\\packages\\coverlet.collector\\6.0.4\\coverlet.collector.6.0.4.nupkg.sha512",
     "C:\\Users\\ASUS\\.nuget\\packages\\microsoft.codecoverage\\17.4.1\\microsoft.codecoverage.17.4.1.nupkg.sha512",
     "C:\\Users\\ASUS\\.nuget\\packages\\microsoft.net.test.sdk\\17.4.1\\microsoft.net.test.sdk.17.4.1.nupkg.sha512",
     "C:\\Users\\ASUS\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",

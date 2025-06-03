@@ -103,3 +103,4 @@ C:\Github\dotnet-CI\tests\obj\Debug\net7.0\refint\dotnet-ci.Tests.dll
 C:\Github\dotnet-CI\tests\obj\Debug\net7.0\dotnet-ci.Tests.pdb
 C:\Github\dotnet-CI\tests\obj\Debug\net7.0\dotnet-ci.Tests.genruntimeconfig.cache
 C:\Github\dotnet-CI\tests\obj\Debug\net7.0\ref\dotnet-ci.Tests.dll
+C:\Github\dotnet-CI\tests\bin\Debug\net7.0\CoverletSourceRootsMapping_dotnet-ci.Tests

@@ -1,4 +1,4 @@
-name: .NET CI
+name: .NET CI + Coverage
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-test:
+  build-test-coverage:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,5 +25,23 @@ jobs:
       - name: Build solution
         run: dotnet build --no-restore
 
-      - name: Run tests
-        run: dotnet test --no-build --verbosity normal
+      - name: Run tests with coverage
+        run: dotnet test tests/dotnet-ci.Tests.csproj --no-build --collect:"XPlat Code Coverage"
+
+      - name: Install ReportGenerator
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+
+      - name: Generate coverage report
+        run: |
+          reportgenerator \
+            -reports:tests/**/coverage.cobertura.xml \
+            -targetdir:coverage-report \
+            -reporttypes:Html
+        env:
+          PATH: $PATH:/home/runner/.dotnet/tools
+
+      - name: Upload coverage report as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: coverage-report

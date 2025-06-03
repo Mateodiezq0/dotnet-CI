@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<coverage line-rate="0.25" branch-rate="1" version="1.9" timestamp="1748980217" lines-covered="1" lines-valid="4" branches-covered="0" branches-valid="0">
+  <sources>
+    <source>C:\</source>
+  </sources>
+  <packages>
+    <package name="dotnet-ci" line-rate="0.25" branch-rate="1" complexity="2">
+      <classes>
+        <class name="dotnet_ci.Calculadora" filename="Github\dotnet-CI\src\Program.cs" line-rate="1" branch-rate="1" complexity="1">
+          <methods>
+            <method name="Sumar" signature="(System.Int32,System.Int32)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="7" hits="1" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="7" hits="1" branch="False" />
+          </lines>
+        </class>
+        <class name="dotnet_ci.Program" filename="Github\dotnet-CI\src\Program.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name="Main" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="13" hits="0" branch="False" />
+                <line number="14" hits="0" branch="False" />
+                <line number="15" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="13" hits="0" branch="False" />
+            <line number="14" hits="0" branch="False" />
+            <line number="15" hits="0" branch="False" />
+          </lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>
