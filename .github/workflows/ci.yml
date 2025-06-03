@@ -29,7 +29,7 @@ jobs:
         run: dotnet test tests/dotnet-ci.Tests.csproj --no-build --collect:"XPlat Code Coverage"
 
       - name: Install ReportGenerator
-        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.1.26 
         env:
           DOTNET_ROOT: /home/runner/.dotnet
           PATH: /home/runner/.dotnet/tools:/usr/bin:/bin
