@@ -42,3 +42,6 @@ jobs:
             -reporttypes:Html
         env:
           PATH: /home/runner/.dotnet/tools:/usr/bin:/bin
+      
+      - name: Docker build
+        run: docker build -t dotnet-ci-app .
