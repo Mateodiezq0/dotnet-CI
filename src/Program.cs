@@ -1,4 +1,6 @@
-﻿namespace dotnet_ci;
+﻿using System;
+
+namespace dotnet_ci;
 
 public class Calculadora
 {
