@@ -25,8 +25,12 @@ jobs:
       - name: Build solution
         run: dotnet build --no-restore
 
-      - name: Run tests with coverage
-        run: dotnet test tests/dotnet-ci.Tests.csproj --no-build --collect:"XPlat Code Coverage"
+      - name: Run tests with coverage and save logs
+        id: test
+        continue-on-error: true
+        run: |
+          dotnet test tests/dotnet-ci.Tests.csproj --no-build --collect:"XPlat Code Coverage" 2>&1 | tee test-output.log
+
 
       - name: Install ReportGenerator
         run: dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.1.26 
@@ -74,18 +78,14 @@ jobs:
             }' \
             ${{ secrets.DISCORD_WEBHOOK_SUCCESS }}
 
-      - name: Obtener logs y explicarlos con IA si falla
-        if: failure()
+      - name: IA explanation + Discord alert
+        if: steps.test.outcome == 'failure'
         run: |
-          echo "Obteniendo logs y explicando con OpenAI..."
-
-          # 1. Captura del error (limitado a últimos 50 líneas)
           echo "Capturando logs..."
-          LOGS=$(tail -n 50 $GITHUB_WORKSPACE/_temp/_runner_command_output.txt || echo "No se pudieron capturar logs directos.")
+          LOGS=$(tail -n 50 test-output.log | sed 's/"/\\"/g')
 
-          # 2. Request a OpenAI para explicar el error
-          echo "Enviando logs a OpenAI..."
-          EXPLICACION=$(curl -s https://api.openai.com/v1/chat/completions \
+          echo "Enviando a OpenAI..."
+          RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
             -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
             -H "Content-Type: application/json" \
             -d "{
@@ -93,7 +93,7 @@ jobs:
               \"messages\": [
                 {
                   \"role\": \"system\",
-                  \"content\": \"Explicá errores de compilación o testing de .NET de forma sencilla.\"
+                  \"content\": \"Explicá errores de testing de .NET en forma simple y útil para un desarrollador junior.\"
                 },
                 {
                   \"role\": \"user\",
@@ -101,20 +101,21 @@ jobs:
                 }
               ],
               \"temperature\": 0.6
-            }" | jq -r '.choices[0].message.content')
+            }")
+
+          EXPLICACION=$(echo "$RESPONSE" | jq -r '.choices[0].message.content')
 
           echo "Explicación generada:"
           echo "$EXPLICACION"
 
-          # 3. Enviar a Discord
           curl -X POST -H "Content-Type: application/json" \
             -d "{
               \"embeds\": [{
-                \"title\": \"❌ CI fallido con explicación IA\",
+                \"title\": \"❌ Tests fallidos - explicación de IA\",
                 \"description\": \"**Repositorio:** [${{ github.repository }}](https://github.com/${{ github.repository }})\\n**Rama:** \`${{ github.ref_name }}\`\\n[🔍 Ver run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\",
                 \"color\": 16711680,
                 \"fields\": [
-                  { \"name\": \"Explicación de la IA\", \"value\": \"$(echo "$EXPLICACION" | head -c 1024)\" }
+                  { \"name\": \"Explicación de la IA\", \"value\": \"$(echo "$EXPLICACION" | head -c 1000)\" }
                 ],
                 \"footer\": { \"text\": \"Autor: ${{ github.actor }}\" },
                 \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
