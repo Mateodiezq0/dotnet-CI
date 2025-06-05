@@ -62,6 +62,9 @@ jobs:
           docker tag dotnet-ci-app ${{ secrets.DOCKER_USERNAME }}/dotnet-ci-app
           docker push ${{ secrets.DOCKER_USERNAME }}/dotnet-ci-app
       
+      - name: Marcar como fallido si los tests fallaron
+        if: env.EXIT_CODE != '0'
+        run: exit 1
 
       - name: Enviar embed a Discord si pasa
         if: success()
@@ -81,7 +84,7 @@ jobs:
             ${{ secrets.DISCORD_WEBHOOK_SUCCESS }}
 
       - name: IA explanation + Discord alert
-        if: env.EXIT_CODE != '0'
+        if: failure()
         run: |
           echo "Capturando logs..."
           LOGS=$(tail -n 50 test-output.log | sed 's/"/\\"/g')
@@ -125,8 +128,5 @@ jobs:
             }" \
             ${{ secrets.DISCORD_WEBHOOK_FAILURE }}
       
-      - name: Marcar como fallido si los tests fallaron
-        if: env.EXIT_CODE != '0'
-        run: exit 1
 
 
