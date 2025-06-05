@@ -74,19 +74,50 @@ jobs:
             }' \
             ${{ secrets.DISCORD_WEBHOOK_SUCCESS }}
 
-      - name: Enviar embed a Discord si falla
+      - name: Obtener logs y explicarlos con IA si falla
         if: failure()
         run: |
-          curl -X POST -H "Content-Type: application/json" \
-            -d '{
-              "embeds": [{
-                "title": "❌ CI fallido",
-                "description": "**Repositorio:** [${{ github.repository }}](https://github.com/${{ github.repository }})\n**Rama:** `${{ github.ref_name }}`\n[🔍 Revisar run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})",
-                "color": 16711680,
-                "footer": {
-                  "text": "Autor: ${{ github.actor }}"
+          echo "Obteniendo logs y explicando con OpenAI..."
+
+          # 1. Captura del error (limitado a últimos 50 líneas)
+          echo "Capturando logs..."
+          LOGS=$(tail -n 50 $GITHUB_WORKSPACE/_temp/_runner_command_output.txt || echo "No se pudieron capturar logs directos.")
+
+          # 2. Request a OpenAI para explicar el error
+          echo "Enviando logs a OpenAI..."
+          EXPLICACION=$(curl -s https://api.openai.com/v1/chat/completions \
+            -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"model\": \"gpt-4\",
+              \"messages\": [
+                {
+                  \"role\": \"system\",
+                  \"content\": \"Explicá errores de compilación o testing de .NET de forma sencilla.\"
                 },
-                "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"
+                {
+                  \"role\": \"user\",
+                  \"content\": \"Este es el error:\n\n$LOGS\"
+                }
+              ],
+              \"temperature\": 0.6
+            }" | jq -r '.choices[0].message.content')
+
+          echo "Explicación generada:"
+          echo "$EXPLICACION"
+
+          # 3. Enviar a Discord
+          curl -X POST -H "Content-Type: application/json" \
+            -d "{
+              \"embeds\": [{
+                \"title\": \"❌ CI fallido con explicación IA\",
+                \"description\": \"**Repositorio:** [${{ github.repository }}](https://github.com/${{ github.repository }})\\n**Rama:** \`${{ github.ref_name }}\`\\n[🔍 Ver run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\",
+                \"color\": 16711680,
+                \"fields\": [
+                  { \"name\": \"Explicación de la IA\", \"value\": \"$(echo "$EXPLICACION" | head -c 1024)\" }
+                ],
+                \"footer\": { \"text\": \"Autor: ${{ github.actor }}\" },
+                \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
               }]
-            }' \
+            }" \
             ${{ secrets.DISCORD_WEBHOOK_FAILURE }}
