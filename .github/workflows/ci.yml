@@ -124,4 +124,9 @@ jobs:
               }]
             }" \
             ${{ secrets.DISCORD_WEBHOOK_FAILURE }}
+      
+      - name: Marcar como fallido si los tests fallaron
+        if: env.EXIT_CODE != '0'
+        run: exit 1
+
 
