@@ -94,8 +94,8 @@ jobs:
           fi
 
           echo "Enviando a OpenAI..."
-          echo "Log que se va a enviar:"
-          echo "$LOGS"
+
+          PROMPT=$(jq -Rs . <<< "Este es el error:\n\n$LOGS")
 
           RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
             -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
@@ -103,19 +103,17 @@ jobs:
             -d "{
               \"model\": \"gpt-4\",
               \"messages\": [
-                {
-                  \"role\": \"system\",
-                  \"content\": \"Sos una IA que explica errores de test de .NET de forma simple para un estudiante.\"
-                },
-                {
-                  \"role\": \"user\",
-                  \"content\": \"Este es el error que quiero entender:\n\n$LOGS\"
-                }
+                { \"role\": \"system\", \"content\": \"Explicá errores de testing de .NET de forma clara y concisa para estudiantes nuevos.\" },
+                { \"role\": \"user\", \"content\": $PROMPT }
               ],
               \"temperature\": 0.5
             }")
 
-          EXPLICACION=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // "OpenAI no devolvió explicación válida."')
+          echo "Respuesta cruda de OpenAI:"
+          echo "$RESPONSE"
+
+          EXPLICACION=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // "⚠️ OpenAI no respondió contenido."')
+
 
           echo "Explicación generada:"
           echo "$EXPLICACION"
