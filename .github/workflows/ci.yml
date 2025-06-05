@@ -125,6 +125,8 @@ jobs:
           echo "Explicación generada:"
           echo "$EXPLICACION"
 
+          SAFE_EXPLICACION=$(echo "$EXPLICACION" | head -c 1000 | jq -Rs .)
+
           curl -X POST -H "Content-Type: application/json" \
             -d "{
               \"embeds\": [{
@@ -132,12 +134,13 @@ jobs:
                 \"description\": \"**Repositorio:** [${{ github.repository }}](https://github.com/${{ github.repository }})\\n**Rama:** \`${{ github.ref_name }}\`\\n[🔍 Ver run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\",
                 \"color\": 16711680,
                 \"fields\": [
-                  { \"name\": \"Explicación de la IA\", \"value\": \"$(echo "$EXPLICACION" | head -c 1000)\" }
+                  { \"name\": \"Explicación de la IA\", \"value\": $SAFE_EXPLICACION }
                 ],
                 \"footer\": { \"text\": \"Autor: ${{ github.actor }}\" },
-                \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\" }
-              ]
+                \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
+              }]
             }" \
             ${{ secrets.DISCORD_WEBHOOK_FAILURE }}
+
 
       
