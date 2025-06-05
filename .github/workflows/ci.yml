@@ -32,10 +32,8 @@ jobs:
           dotnet test tests/dotnet-ci.Tests.csproj --no-build --collect:"XPlat Code Coverage" 2>&1 | tee test-output.log
           echo "EXIT_CODE=${PIPESTATUS[0]}" >> $GITHUB_ENV
 
-
-
       - name: Install ReportGenerator
-        run: dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.1.26 
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool --version 5.1.26
         env:
           DOTNET_ROOT: /home/runner/.dotnet
           PATH: /home/runner/.dotnet/tools:/usr/bin:/bin
@@ -48,11 +46,11 @@ jobs:
             -reporttypes:Html
         env:
           PATH: /home/runner/.dotnet/tools:/usr/bin:/bin
-      
+
       - name: Docker build
         run: docker build -t dotnet-ci-app .
-      
-      - name: Login to Docker Hub.
+
+      - name: Login to Docker Hub
         if: success()
         run: echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
@@ -61,7 +59,7 @@ jobs:
         run: |
           docker tag dotnet-ci-app ${{ secrets.DOCKER_USERNAME }}/dotnet-ci-app
           docker push ${{ secrets.DOCKER_USERNAME }}/dotnet-ci-app
-      
+
       - name: Marcar como fallido si los tests fallaron
         if: env.EXIT_CODE != '0'
         run: exit 1
@@ -75,6 +73,9 @@ jobs:
                 "title": "✅ CI exitoso",
                 "description": "**Repositorio:** [${{ github.repository }}](https://github.com/${{ github.repository }})\n**Rama:** `${{ github.ref_name }}`\n[🔗 Ver run completo](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})",
                 "color": 65280,
+                "fields": [
+                  { "name": "Commit", "value": "'"${{ github.event.head_commit.message }}"'" }
+                ],
                 "footer": {
                   "text": "Autor: ${{ github.actor }}"
                 },
@@ -93,9 +94,9 @@ jobs:
             LOGS="No se pudo encontrar test-output.log"
           fi
 
-          echo "Enviando a OpenAI..."
+          PROMPT=$(jq -Rs . <<< "Este es el log de un test fallido de .NET. Por favor, explicalo brevemente como si fueras una IA mentora para estudiantes, en un solo párrafo, usando lenguaje claro y corto. No repitas el stacktrace. Solo explica por qué falló, cuál fue el error esperado y cómo se soluciona.\n\n$LOGS")
 
-          PROMPT=$(jq -Rs . <<< "Este es el error:\n\n$LOGS")
+          echo "Enviando a DeepSeek..."
 
           RESPONSE=$(curl -s https://openrouter.ai/api/v1/chat/completions \
             -H "Authorization: Bearer ${{ secrets.OPENROUTER_API_KEY }}" \
@@ -106,26 +107,21 @@ jobs:
               \"messages\": [
                 {
                   \"role\": \"system\",
-                  \"content\": \"Explicá este error de test de .NET como si fueras una IA que ayuda a un estudiante que recién está empezando.\"
+                  \"content\": \"Sos una IA que explica errores de testing de .NET para estudiantes nuevos.\"
                 },
                 {
                   \"role\": \"user\",
                   \"content\": $PROMPT
                 }
               ]
-              }")
+            }")
 
-
-          echo "Respuesta cruda de OpenAI:"
+          echo "Respuesta cruda:"
           echo "$RESPONSE"
 
           EXPLICACION=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // "⚠️ DeepSeek no devolvió contenido válido."')
-
-
-          echo "Explicación generada:"
-          echo "$EXPLICACION"
-
           SAFE_EXPLICACION=$(echo "$EXPLICACION" | head -c 1000 | jq -Rs .)
+          COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}" | head -c 200 | jq -Rs .)
 
           curl -X POST -H "Content-Type: application/json" \
             -d "{
@@ -134,6 +130,7 @@ jobs:
                 \"description\": \"**Repositorio:** [${{ github.repository }}](https://github.com/${{ github.repository }})\\n**Rama:** \`${{ github.ref_name }}\`\\n[🔍 Ver run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\",
                 \"color\": 16711680,
                 \"fields\": [
+                  { \"name\": \"Commit\", \"value\": $COMMIT_MSG },
                   { \"name\": \"Explicación de la IA\", \"value\": $SAFE_EXPLICACION }
                 ],
                 \"footer\": { \"text\": \"Autor: ${{ github.actor }}\" },
@@ -141,6 +138,3 @@ jobs:
               }]
             }" \
             ${{ secrets.DISCORD_WEBHOOK_FAILURE }}
-
-
-      
