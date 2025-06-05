@@ -79,7 +79,7 @@ jobs:
       - name: Enviar embed a Discord si pasa
         if: success()
         run: |
-          COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}" | head -c 200 | jq -Rs .)
+          COMMIT_MSG=$(jq -Rs . <<< "${{ github.event.head_commit.message }}")
 
           curl -X POST -H "Content-Type: application/json" \
             -d "{
@@ -123,7 +123,7 @@ jobs:
 
               EXPLICACION=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // "⚠️ DeepSeek no devolvió contenido válido."')
               SAFE_EXPLICACION=$(echo "$EXPLICACION" | head -c 1000 | jq -Rs .)
-              COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}" | head -c 200 | jq -Rs .)
+              COMMIT_MSG=$(jq -Rs . <<< "${{ github.event.head_commit.message }}")
 
               curl -X POST -H "Content-Type: application/json" \
                 -d "{
