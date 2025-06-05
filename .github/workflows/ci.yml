@@ -67,22 +67,25 @@ jobs:
       - name: Enviar embed a Discord si pasa
         if: success()
         run: |
+          COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}" | head -c 200 | jq -Rs .)
+
           curl -X POST -H "Content-Type: application/json" \
-            -d '{
-              "embeds": [{
-                "title": "✅ CI exitoso",
-                "description": "**Repositorio:** [${{ github.repository }}](https://github.com/${{ github.repository }})\n**Rama:** `${{ github.ref_name }}`\n[🔗 Ver run completo](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})",
-                "color": 65280,
-                "fields": [
-                  { "name": "Commit", "value": "'"${{ github.event.head_commit.message }}"'" }
+            -d "{
+              \"embeds\": [{
+                \"title\": \"✅ CI exitoso\",
+                \"description\": \"**Repositorio:** [${{ github.repository }}](https://github.com/${{ github.repository }})\\n**Rama:** \`${{ github.ref_name }}\`\\n[🔗 Ver run completo](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\",
+                \"color\": 65280,
+                \"fields\": [
+                  { \"name\": \"Commit\", \"value\": $COMMIT_MSG }
                 ],
-                "footer": {
-                  "text": "Autor: ${{ github.actor }}"
+                \"footer\": {
+                  \"text\": \"Autor: ${{ github.actor }}\"
                 },
-                "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"
+                \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
               }]
-            }' \
+            }" \
             ${{ secrets.DISCORD_WEBHOOK_SUCCESS }}
+
 
       - name: IA explanation + Discord alert
         if: failure()
