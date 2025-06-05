@@ -55,3 +55,18 @@ jobs:
         run: |
           docker tag dotnet-ci-app ${{ secrets.DOCKER_USERNAME }}/dotnet-ci-app
           docker push ${{ secrets.DOCKER_USERNAME }}/dotnet-ci-app
+      
+      - name: Enviar mensaje a Discord si pasa
+        if: success()
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+            -d '{"content": "✅ CI exitoso para `${{ github.repository }}` en `${{ github.ref_name }}`.\n🔗 https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"}' \
+            ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+      - name: Enviar mensaje a Discord si falla
+        if: failure()
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+            -d '{"content": "❌ CI falló para `${{ github.repository }}` en `${{ github.ref_name }}`.\n🔍 Revisar: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"}' \
+            ${{ secrets.DISCORD_WEBHOOK_URL }}
+
