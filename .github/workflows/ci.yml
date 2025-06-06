@@ -82,7 +82,7 @@ jobs:
           COMMIT_RAW=$(echo "${{ github.event.head_commit.message }}" | jq -Rs .)
 
           jq -n \
-            --argjson commit $COMMIT_RAW \
+            --arg commit $COMMIT_RAW \
             --arg repo "${{ github.repository }}" \
             --arg branch "${{ github.ref_name }}" \
             --arg actor "${{ github.actor }}" \
@@ -131,7 +131,7 @@ jobs:
               SAFE_EXPLICACION=$(echo "$EXPLICACION" | head -c 1000 | jq -Rs .)
 
               jq -n \
-                --argjson commit $COMMIT_RAW \
+                --arg commit $COMMIT_RAW \
                 --arg explicacion "$SAFE_EXPLICACION" \
                 --arg repo "${{ github.repository }}" \
                 --arg branch "${{ github.ref_name }}" \
