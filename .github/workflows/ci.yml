@@ -71,7 +71,9 @@ jobs:
 
       - name: Login to Docker Hub
         if: success()
-        run: echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+        run: |
+          echo "Logging in to Docker Hub..." 
+          echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin 2>&1 | tee docker-login.log
 
       - name: Docker push
         if: success()
@@ -109,53 +111,56 @@ jobs:
       - name: IA explanation para cualquier fallo
         if: failure()
         run: |
-          COMMIT_RAW=$(echo "${{ github.event.head_commit.message }}" | head -c 200 | sed 's/[\"`]/\\&/g')
-          FILES=$(ls *.log 2>/dev/null || true)
-          for f in $FILES; do
-            if grep -iE "error|exception|failed" "$f"; then
-              echo "⚠️ Error detectado en $f"
-              LOGS=$(tail -n 50 "$f" | head -c 1500 | sed 's/[\"`]/\\&/g' | tr '\n' ' ')
-              STEP_NAME=$(basename "$f" .log | tr 'a-z' 'A-Z')
-              PROMPT=$(jq -Rs . <<< "El paso \"$STEP_NAME\" del pipeline de GitHub Actions falló. Este es el log capturado:\n\n$LOGS\n\nExplicalo como una IA mentora para estudiantes, en un solo párrafo, con lenguaje claro, indicando qué falló y cómo se puede solucionar.")
+          echo "Capturando logs..."
+          LOGS="No se encontraron logs de error."
+          if [ -f test-output.log ]; then
+            LOGS=$(cat test-output.log)
+          fi
+          if [ -f docker-build.log ]; then
+            LOGS="$LOGS $(cat docker-build.log)"
+          fi
+          if [ -f docker-login.log ]; then
+            LOGS="$LOGS $(cat docker-login.log)"
+          fi
+          
+          PROMPT=$(jq -Rs . <<< "Este es el log de un fallo en el pipeline de GitHub Actions. Por favor, explícalo como una IA mentora para estudiantes, en un solo párrafo, con lenguaje claro, indicando qué falló y cómo se puede solucionar.\n\n$LOGS")
 
-              RESPONSE=$(curl -s https://openrouter.ai/api/v1/chat/completions \
-                -H "Authorization: Bearer ${{ secrets.OPENROUTER_API_KEY }}" \
-                -H "Content-Type: application/json" \
-                -H "HTTP-Referer: https://github.com/${{ github.repository }}" \
-                -d "{
-                  \"model\": \"deepseek/deepseek-chat\",
-                  \"messages\": [
-                    { \"role\": \"system\", \"content\": \"Sos una IA que explica errores de CI/CD para estudiantes nuevos.\" },
-                    { \"role\": \"user\", \"content\": $PROMPT }
-                  ]
-                }")
+          RESPONSE=$(curl -s https://openrouter.ai/api/v1/chat/completions \
+            -H "Authorization: Bearer ${{ secrets.OPENROUTER_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -H "HTTP-Referer: https://github.com/${{ github.repository }}" \
+            -d "{
+              \"model\": \"deepseek/deepseek-chat\",
+              \"messages\": [
+                { \"role\": \"system\", \"content\": \"Sos una IA que explica errores de CI/CD para estudiantes nuevos.\" },
+                { \"role\": \"user\", \"content\": $PROMPT }
+              ]
+            }")
 
-              EXPLICACION=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // "⚠️ DeepSeek no devolvió contenido válido."')
-              SAFE_EXPLICACION=$(echo "$EXPLICACION" | head -c 1000 | jq -Rs .)
+          EXPLICACION=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // "⚠️ DeepSeek no devolvió contenido válido."')
+          SAFE_EXPLICACION=$(echo "$EXPLICACION" | head -c 1000 | jq -Rs .)
 
-              jq -n \
-                --arg commit "$COMMIT_RAW" \
-                --arg explicacion "$SAFE_EXPLICACION" \
-                --arg repo "${{ github.repository }}" \
-                --arg branch "${{ github.ref_name }}" \
-                --arg actor "${{ github.actor }}" \
-                --arg run_url "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
-                --arg step "$STEP_NAME" \
-                --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-                '{
-                  embeds: [{
-                    title: "❌ Fallo en etapa \($step) - explicación IA",
-                    description: "**Repositorio:** [\($repo)](https://github.com/\($repo))\n**Rama:** `\($branch)`\n[🔍 Ver run](\($run_url))",
-                    color: 16711680,
-                    fields: [
-                      { name: "Commit", value: $commit },
-                      { name: "Explicación de la IA", value: $explicacion }
-                    ],
-                    footer: { text: "Autor: \($actor)" },
-                    timestamp: $timestamp
-                  }]
-                }' > payload.json
+          jq -n \
+            --arg commit "$COMMIT_RAW" \
+            --arg explicacion "$SAFE_EXPLICACION" \
+            --arg repo "${{ github.repository }}" \
+            --arg branch "${{ github.ref_name }}" \
+            --arg actor "${{ github.actor }}" \
+            --arg run_url "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --arg step "Error en Docker o tests" \
+            --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            '{
+              embeds: [{
+                title: "❌ Fallo en el pipeline - Explicación IA",
+                description: "**Repositorio:** [\($repo)](https://github.com/\($repo))\n**Rama:** `\($branch)`\n[🔍 Ver run](\($run_url))",
+                color: 16711680,
+                fields: [
+                  { name: "Commit", value: $commit },
+                  { name: "Explicación de la IA", value: $explicacion }
+                ],
+                footer: { text: "Autor: \($actor)" },
+                timestamp: $timestamp
+              }]
+            }' > payload.json
 
-              curl -X POST -H "Content-Type: application/json" -d @payload.json ${{ secrets.DISCORD_WEBHOOK_FAILURE }}
-            fi
-          done
+          curl -X POST -H "Content-Type: application/json" -d @payload.json ${{ secrets.DISCORD_WEBHOOK_FAILURE }}
