@@ -19,6 +19,15 @@ jobs:
         with:
           dotnet-version: '7.0.x'
 
+      # Agregado paso de caché para dependencias de .NET
+      - name: Cache dotnet dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-dotnet-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-dotnet-
+      
       - name: Restore dependencies
         id: restore
         continue-on-error: true
@@ -40,10 +49,12 @@ jobs:
           echo "EXIT_CODE=${PIPESTATUS[0]}" >> $GITHUB_ENV
           echo "TEST_LOG=${PIPESTATUS[0]}" >> $GITHUB_ENV
 
+      # Marcar como fallido si los tests fallaron
       - name: Marcar como fallido si los tests fallaron
         if: env.EXIT_CODE != '0'
         run: exit 1
 
+      # Instalación de ReportGenerator para reporte de cobertura
       - name: Install ReportGeneratorr
         id: reportgen-install
         continue-on-error: true
@@ -57,7 +68,7 @@ jobs:
         id: coverage
         continue-on-error: true
         run: |
-          # Cambia la ruta a una relativa, si es necesario
+          # Cambiar la ruta a una relativa, si es necesario
           reportgenerator \
             -reports:TestResults/**/coverage.cobertura.xml \
             -targetdir:coverage-report \
@@ -81,6 +92,7 @@ jobs:
           docker tag dotnet-ci-app ${{ secrets.DOCKER_USERNAME }}/dotnet-ci-app
           docker push ${{ secrets.DOCKER_USERNAME }}/dotnet-ci-app
 
+      # Enviar embed a Discord si la build pasa
       - name: Enviar embed a Discord si pasa
         if: success()
         run: |
@@ -108,6 +120,7 @@ jobs:
 
           curl -X POST -H "Content-Type: application/json" -d @payload.json ${{ secrets.DISCORD_WEBHOOK_SUCCESS }}
 
+      # IA explanation para cualquier fallo
       - name: IA explanation para cualquier fallo
         if: failure()
         run: |
