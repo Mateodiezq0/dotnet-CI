@@ -79,7 +79,7 @@ jobs:
       - name: Enviar embed a Discord si pasa
         if: success()
         run: |
-          echo "${{ github.event.head_commit.message }}" | jq -Rs . > commit.json
+          COMMIT_JSON=$(echo "${{ github.event.head_commit.message }}" | jq -Rs .)
 
           printf '%s\n' "{
             \"embeds\": [{
@@ -87,7 +87,7 @@ jobs:
               \"description\": \"**Repositorio:** [${{ github.repository }}](https://github.com/${{ github.repository }})\\n**Rama:** \\`${{ github.ref_name }}\`\\n[🔗 Ver run completo](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\",
               \"color\": 65280,
               \"fields\": [
-                { \"name\": \"Commit\", \"value\": $(cat commit.json) }
+                { \"name\": \"Commit\", \"value\": $COMMIT_JSON }
               ],
               \"footer\": {
                 \"text\": \"Autor: ${{ github.actor }}\"
@@ -101,7 +101,7 @@ jobs:
       - name: IA explanation para cualquier fallo
         if: failure()
         run: |
-          echo "${{ github.event.head_commit.message }}" | jq -Rs . > commit.json
+          COMMIT_JSON=$(echo "${{ github.event.head_commit.message }}" | jq -Rs .)
           FILES=$(ls *.log 2>/dev/null || true)
           for f in $FILES; do
             if grep -iE "error|exception|failed" "$f"; then
@@ -131,7 +131,7 @@ jobs:
                   \"description\": \"**Repositorio:** [${{ github.repository }}](https://github.com/${{ github.repository }})\\n**Rama:** \\`${{ github.ref_name }}\`\\n[🔍 Ver run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\",
                   \"color\": 16711680,
                   \"fields\": [
-                    { \"name\": \"Commit\", \"value\": $(cat commit.json) },
+                    { \"name\": \"Commit\", \"value\": $COMMIT_JSON },
                     { \"name\": \"Explicación de la IA\", \"value\": $SAFE_EXPLICACION }
                   ],
                   \"footer\": { \"text\": \"Autor: ${{ github.actor }}\" },
