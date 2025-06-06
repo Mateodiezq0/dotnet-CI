@@ -50,9 +50,15 @@ jobs:
           echo "TEST_LOG=${PIPESTATUS[0]}" >> $GITHUB_ENV
 
       # Paso SonarQube Scanner para análisis estático de código
+      - name: Install SonarScanner for .NET
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+        env:
+          DOTNET_ROOT: /home/runner/.dotnet
+          PATH: /home/runner/.dotnet/tools:/usr/bin:/bin
+
       - name: Run SonarQube analysis
         run: |
-          dotnet build
           dotnet sonarscanner begin /k:"${{ github.repository }}" /d:sonar.login="${{ secrets.SONARQUBE_TOKEN }}"
           dotnet build
           dotnet sonarscanner end /d:sonar.login="${{ secrets.SONARQUBE_TOKEN }}"
@@ -80,24 +86,6 @@ jobs:
             -reports:TestResults/**/coverage.cobertura.xml \
             -targetdir:coverage-report \
             -reporttypes:Html 2>&1 | tee coverage.log
-
-      - name: Docker build
-        id: docker-build
-        continue-on-error: true
-        run: |
-          docker build -t dotnet-ci-app . 2>&1 | tee docker-build.log
-
-      - name: Login to Docker Hub
-        if: success()
-        run: |
-          echo "Logging in to Docker Hub..." 
-          echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin 2>&1 | tee docker-login.log
-
-      - name: Docker push
-        if: success()
-        run: |
-          docker tag dotnet-ci-app ${{ secrets.DOCKER_USERNAME }}/dotnet-ci-app
-          docker push ${{ secrets.DOCKER_USERNAME }}/dotnet-ci-app
 
       # Enviar embed a Discord si la build pasa
       - name: Enviar embed a Discord si pasa
