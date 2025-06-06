@@ -43,7 +43,7 @@ jobs:
         if: env.EXIT_CODE != '0'
         run: exit 1
 
-      - name: Install ReportGenerator
+      - name: Install ReportGeneratorr
         id: reportgen-install
         continue-on-error: true
         run: |
