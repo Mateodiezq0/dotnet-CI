@@ -113,6 +113,8 @@ jobs:
         run: |
           echo "Capturando logs..."
           LOGS="No se encontraron logs de error."
+          
+          # Verificando si los archivos existen y concatenando los logs
           if [ -f test-output.log ]; then
             LOGS=$(cat test-output.log)
           fi
@@ -122,9 +124,16 @@ jobs:
           if [ -f docker-login.log ]; then
             LOGS="$LOGS $(cat docker-login.log)"
           fi
-          
+
+          # Verificando si LOGS está vacío antes de continuar
+          if [ "$LOGS" == "No se encontraron logs de error." ]; then
+            LOGS="⚠️ No se encontraron logs de error."
+          fi
+
+          # Preparando el mensaje para DeepSeek
           PROMPT=$(jq -Rs . <<< "Este es el log de un fallo en el pipeline de GitHub Actions. Por favor, explícalo como una IA mentora para estudiantes, en un solo párrafo, con lenguaje claro, indicando qué falló y cómo se puede solucionar.\n\n$LOGS")
 
+          # Enviando la solicitud a DeepSeek
           RESPONSE=$(curl -s https://openrouter.ai/api/v1/chat/completions \
             -H "Authorization: Bearer ${{ secrets.OPENROUTER_API_KEY }}" \
             -H "Content-Type: application/json" \
@@ -140,6 +149,7 @@ jobs:
           EXPLICACION=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // "⚠️ DeepSeek no devolvió contenido válido."')
           SAFE_EXPLICACION=$(echo "$EXPLICACION" | head -c 1000 | jq -Rs .)
 
+          # Enviando el mensaje a Discord
           jq -n \
             --arg commit "$COMMIT_RAW" \
             --arg explicacion "$SAFE_EXPLICACION" \
