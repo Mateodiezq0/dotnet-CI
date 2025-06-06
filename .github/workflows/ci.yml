@@ -82,7 +82,7 @@ jobs:
       - name: Enviar embed a Discord si pasa
         if: success()
         run: |
-          COMMIT_RAW=$(echo "${{ github.event.head_commit.message }}" | head -c 200 | sed 's/["`]/\\&/g')
+          COMMIT_RAW=$(echo "${{ github.event.head_commit.message }}" | head -c 200 | sed 's/[\"`]/\\&/g')
 
           jq -n \
             --arg commit "$COMMIT_RAW" \
@@ -109,12 +109,12 @@ jobs:
       - name: IA explanation para cualquier fallo
         if: failure()
         run: |
-          COMMIT_RAW=$(echo "${{ github.event.head_commit.message }}" | head -c 200 | sed 's/["`]/\\&/g')
+          COMMIT_RAW=$(echo "${{ github.event.head_commit.message }}" | head -c 200 | sed 's/[\"`]/\\&/g')
           FILES=$(ls *.log 2>/dev/null || true)
           for f in $FILES; do
             if grep -iE "error|exception|failed" "$f"; then
               echo "⚠️ Error detectado en $f"
-              LOGS=$(tail -n 50 "$f" | head -c 1500 | sed 's/["`]/\\&/g' | tr '\n' ' ')
+              LOGS=$(tail -n 50 "$f" | head -c 1500 | sed 's/[\"`]/\\&/g' | tr '\n' ' ')
               STEP_NAME=$(basename "$f" .log | tr 'a-z' 'A-Z')
               PROMPT=$(jq -Rs . <<< "El paso \"$STEP_NAME\" del pipeline de GitHub Actions falló. Este es el log capturado:\n\n$LOGS\n\nExplicalo como una IA mentora para estudiantes, en un solo párrafo, con lenguaje claro, indicando qué falló y cómo se puede solucionar.")
 
