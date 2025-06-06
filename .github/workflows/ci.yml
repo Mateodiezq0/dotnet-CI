@@ -59,7 +59,7 @@ jobs:
 
       - name: Run SonarQube analysis
         run: |
-          dotnet sonarscanner begin /k:"${{ github.repository }}" /d:sonar.login="${{ secrets.SONARQUBE_TOKEN }}"
+          dotnet sonarscanner begin /k:"dotnet-ci" /d:sonar.login="${{ secrets.SONARQUBE_TOKEN }}"
           dotnet build
           dotnet sonarscanner end /d:sonar.login="${{ secrets.SONARQUBE_TOKEN }}"
 
