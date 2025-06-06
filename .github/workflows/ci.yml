@@ -33,12 +33,15 @@ jobs:
           dotnet build --no-restore 2>&1 | tee build.log
           echo "EXIT_CODE_BUILD=${PIPESTATUS[0]}" >> $GITHUB_ENV
 
-      - name: Run tests with coverage
+      - name: Run tests with coverage and capture logs
         id: test
-        continue-on-error: true
         run: |
-          dotnet test tests/dotnet-ci.Tests.csproj --no-build --collect:"XPlat Code Coverage" 2>&1 | tee test.log
-          echo "EXIT_CODE_TEST=${PIPESTATUS[0]}" >> $GITHUB_ENV
+          dotnet test tests/dotnet-ci.Tests.csproj --no-build --collect:"XPlat Code Coverage" 2>&1 | tee test-output.log
+          echo "EXIT_CODE=${PIPESTATUS[0]}" >> $GITHUB_ENV
+
+      - name: Marcar como fallido si los tests fallaron
+        if: env.EXIT_CODE != '0'
+        run: exit 1
 
       - name: Install ReportGenerator
         id: reportgen-install
