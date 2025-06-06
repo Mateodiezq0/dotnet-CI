@@ -81,20 +81,25 @@ jobs:
         run: |
           COMMIT_JSON=$(echo "${{ github.event.head_commit.message }}" | jq -Rs .)
 
-          printf '%s\n' "{
-            \"embeds\": [{
-              \"title\": \"✅ CI exitoso\",
-              \"description\": \"**Repositorio:** [${{ github.repository }}](https://github.com/${{ github.repository }})\\n**Rama:** \\`${{ github.ref_name }}\`\\n[🔗 Ver run completo](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\",
-              \"color\": 65280,
-              \"fields\": [
-                { \"name\": \"Commit\", \"value\": $COMMIT_JSON }
-              ],
-              \"footer\": {
-                \"text\": \"Autor: ${{ github.actor }}\"
-              },
-              \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
-            }]
-          }" > payload.json
+          jq -n \
+            --arg commit "$COMMIT_JSON" \
+            --arg repo "${{ github.repository }}" \
+            --arg branch "${{ github.ref_name }}" \
+            --arg actor "${{ github.actor }}" \
+            --arg run_url "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            '{
+              embeds: [{
+                title: "✅ CI exitoso",
+                description: "**Repositorio:** [\($repo)](https://github.com/\($repo))\n**Rama:** `\($branch)`\n[🔗 Ver run completo](\($run_url))",
+                color: 65280,
+                fields: [
+                  { name: "Commit", value: $commit }
+                ],
+                footer: { text: "Autor: \($actor)" },
+                timestamp: $timestamp
+              }]
+            }' > payload.json
 
           curl -X POST -H "Content-Type: application/json" -d @payload.json ${{ secrets.DISCORD_WEBHOOK_SUCCESS }}
 
@@ -125,19 +130,28 @@ jobs:
               EXPLICACION=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // "⚠️ DeepSeek no devolvió contenido válido."')
               SAFE_EXPLICACION=$(echo "$EXPLICACION" | head -c 1000 | jq -Rs .)
 
-              printf '%s\n' "{
-                \"embeds\": [{
-                  \"title\": \"❌ Fallo en etapa $STEP_NAME - explicación IA\",
-                  \"description\": \"**Repositorio:** [${{ github.repository }}](https://github.com/${{ github.repository }})\\n**Rama:** \\`${{ github.ref_name }}\`\\n[🔍 Ver run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\",
-                  \"color\": 16711680,
-                  \"fields\": [
-                    { \"name\": \"Commit\", \"value\": $COMMIT_JSON },
-                    { \"name\": \"Explicación de la IA\", \"value\": $SAFE_EXPLICACION }
-                  ],
-                  \"footer\": { \"text\": \"Autor: ${{ github.actor }}\" },
-                  \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
-                }]
-              }" > payload.json
+              jq -n \
+                --arg commit "$COMMIT_JSON" \
+                --arg explicacion "$SAFE_EXPLICACION" \
+                --arg repo "${{ github.repository }}" \
+                --arg branch "${{ github.ref_name }}" \
+                --arg actor "${{ github.actor }}" \
+                --arg run_url "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+                --arg step "$STEP_NAME" \
+                --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+                '{
+                  embeds: [{
+                    title: "❌ Fallo en etapa \($step) - explicación IA",
+                    description: "**Repositorio:** [\($repo)](https://github.com/\($repo))\n**Rama:** `\($branch)`\n[🔍 Ver run](\($run_url))",
+                    color: 16711680,
+                    fields: [
+                      { name: "Commit", value: $commit },
+                      { name: "Explicación de la IA", value: $explicacion }
+                    ],
+                    footer: { text: "Autor: \($actor)" },
+                    timestamp: $timestamp
+                  }]
+                }' > payload.json
 
               curl -X POST -H "Content-Type: application/json" -d @payload.json ${{ secrets.DISCORD_WEBHOOK_FAILURE }}
             fi
