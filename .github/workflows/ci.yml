@@ -79,10 +79,10 @@ jobs:
       - name: Enviar embed a Discord si pasa
         if: success()
         run: |
-          COMMIT_JSON=$(echo "${{ github.event.head_commit.message }}" | jq -Rs .)
+          COMMIT_RAW=$(echo "${{ github.event.head_commit.message }}" | jq -Rs .)
 
           jq -n \
-            --arg commit "$COMMIT_JSON" \
+            --argjson commit $COMMIT_RAW \
             --arg repo "${{ github.repository }}" \
             --arg branch "${{ github.ref_name }}" \
             --arg actor "${{ github.actor }}" \
@@ -106,7 +106,7 @@ jobs:
       - name: IA explanation para cualquier fallo
         if: failure()
         run: |
-          COMMIT_JSON=$(echo "${{ github.event.head_commit.message }}" | jq -Rs .)
+          COMMIT_RAW=$(echo "${{ github.event.head_commit.message }}" | jq -Rs .)
           FILES=$(ls *.log 2>/dev/null || true)
           for f in $FILES; do
             if grep -iE "error|exception|failed" "$f"; then
@@ -131,7 +131,7 @@ jobs:
               SAFE_EXPLICACION=$(echo "$EXPLICACION" | head -c 1000 | jq -Rs .)
 
               jq -n \
-                --arg commit "$COMMIT_JSON" \
+                --argjson commit $COMMIT_RAW \
                 --arg explicacion "$SAFE_EXPLICACION" \
                 --arg repo "${{ github.repository }}" \
                 --arg branch "${{ github.ref_name }}" \
