@@ -79,36 +79,34 @@ jobs:
       - name: Enviar embed a Discord si pasa
         if: success()
         run: |
-          echo "${{ github.event.head_commit.message }}" > commit.txt
-          COMMIT_MSG=$(jq -Rs . < commit.txt)
+          echo "${{ github.event.head_commit.message }}" | jq -Rs . > commit.json
 
-          curl -X POST -H "Content-Type: application/json" \
-            -d "{
-              \"embeds\": [{
-                \"title\": \"✅ CI exitoso\",
-                \"description\": \"**Repositorio:** [${{ github.repository }}](https://github.com/${{ github.repository }})\\n**Rama:** \\`${{ github.ref_name }}\`\\n[🔗 Ver run completo](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\",
-                \"color\": 65280,
-                \"fields\": [
-                  { \"name\": \"Commit\", \"value\": $COMMIT_MSG }
-                ],
-                \"footer\": {
-                  \"text\": \"Autor: ${{ github.actor }}\"
-                },
-                \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
-              }]
-            }" \
-            ${{ secrets.DISCORD_WEBHOOK_SUCCESS }}
+          echo '{
+            "embeds": [{
+              "title": "✅ CI exitoso",
+              "description": "**Repositorio:** [${{ github.repository }}](https://github.com/${{ github.repository }})\n**Rama:** \`${{ github.ref_name }}\`\n[🔗 Ver run completo](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})",
+              "color": 65280,
+              "fields": [
+                { "name": "Commit", "value": '$(cat commit.json)' }
+              ],
+              "footer": {
+                "text": "Autor: ${{ github.actor }}"
+              },
+              "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"
+            }]
+          }' > payload.json
+
+          curl -X POST -H "Content-Type: application/json" -d @payload.json ${{ secrets.DISCORD_WEBHOOK_SUCCESS }}
 
       - name: IA explanation para cualquier fallo
         if: failure()
         run: |
-          echo "${{ github.event.head_commit.message }}" > commit.txt
-          COMMIT_MSG=$(jq -Rs . < commit.txt)
+          echo "${{ github.event.head_commit.message }}" | jq -Rs . > commit.json
           FILES=$(ls *.log 2>/dev/null || true)
           for f in $FILES; do
             if grep -iE "error|exception|failed" "$f"; then
               echo "⚠️ Error detectado en $f"
-              LOGS=$(tail -n 50 "$f" | head -c 1500 | sed 's/["`]/\\&/g' | tr '\n' ' ')
+              LOGS=$(tail -n 50 "$f" | head -c 1500 | sed 's/["`]/\&/g' | tr '\n' ' ')
               STEP_NAME=$(basename "$f" .log | tr 'a-z' 'A-Z')
               PROMPT=$(jq -Rs . <<< "El paso \"$STEP_NAME\" del pipeline de GitHub Actions falló. Este es el log capturado:\n\n$LOGS\n\nExplicalo como una IA mentora para estudiantes, en un solo párrafo, con lenguaje claro, indicando qué falló y cómo se puede solucionar.")
 
@@ -127,20 +125,20 @@ jobs:
               EXPLICACION=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // "⚠️ DeepSeek no devolvió contenido válido."')
               SAFE_EXPLICACION=$(echo "$EXPLICACION" | head -c 1000 | jq -Rs .)
 
-              curl -X POST -H "Content-Type: application/json" \
-                -d "{
-                  \"embeds\": [{
-                    \"title\": \"❌ Fallo en etapa $STEP_NAME - explicación IA\",
-                    \"description\": \"**Repositorio:** [${{ github.repository }}](https://github.com/${{ github.repository }})\\n**Rama:** \\`${{ github.ref_name }}\`\\n[🔍 Ver run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\",
-                    \"color\": 16711680,
-                    \"fields\": [
-                      { \"name\": \"Commit\", \"value\": $COMMIT_MSG },
-                      { \"name\": \"Explicación de la IA\", \"value\": $SAFE_EXPLICACION }
-                    ],
-                    \"footer\": { \"text\": \"Autor: ${{ github.actor }}\" },
-                    \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
-                  }]
-                }" \
-                ${{ secrets.DISCORD_WEBHOOK_FAILURE }}
+              echo '{
+                "embeds": [{
+                  "title": "❌ Fallo en etapa '"$STEP_NAME"' - explicación IA",
+                  "description": "**Repositorio:** [${{ github.repository }}](https://github.com/${{ github.repository }})\n**Rama:** \`${{ github.ref_name }}\`\n[🔍 Ver run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})",
+                  "color": 16711680,
+                  "fields": [
+                    { "name": "Commit", "value": '$(cat commit.json)' },
+                    { "name": "Explicación de la IA", "value": '"$SAFE_EXPLICACION"' }
+                  ],
+                  "footer": { "text": "Autor: ${{ github.actor }}" },
+                  "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"
+                }]
+              }' > payload.json
+
+              curl -X POST -H "Content-Type: application/json" -d @payload.json ${{ secrets.DISCORD_WEBHOOK_FAILURE }}
             fi
           done
