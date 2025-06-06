@@ -79,7 +79,8 @@ jobs:
       - name: Enviar embed a Discord si pasa
         if: success()
         run: |
-          COMMIT_MSG=$(jq -Rs . <<< "${{ github.event.head_commit.message }}")
+          echo "${{ github.event.head_commit.message }}" > commit.txt
+          COMMIT_MSG=$(jq -Rs . < commit.txt)
 
           curl -X POST -H "Content-Type: application/json" \
             -d "{
@@ -101,6 +102,8 @@ jobs:
       - name: IA explanation para cualquier fallo
         if: failure()
         run: |
+          echo "${{ github.event.head_commit.message }}" > commit.txt
+          COMMIT_MSG=$(jq -Rs . < commit.txt)
           FILES=$(ls *.log 2>/dev/null || true)
           for f in $FILES; do
             if grep -iE "error|exception|failed" "$f"; then
@@ -123,7 +126,6 @@ jobs:
 
               EXPLICACION=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // "⚠️ DeepSeek no devolvió contenido válido."')
               SAFE_EXPLICACION=$(echo "$EXPLICACION" | head -c 1000 | jq -Rs .)
-              COMMIT_MSG=$(jq -Rs . <<< "${{ github.event.head_commit.message }}")
 
               curl -X POST -H "Content-Type: application/json" \
                 -d "{
