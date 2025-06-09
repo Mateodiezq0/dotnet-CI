@@ -59,7 +59,7 @@ jobs:
 
       - name: Run SonarQube analysis
         run: |
-          dotnet sonarscanner begin /k:"dotnet-ci" /d:sonar.login="${{ secrets.SONARQUBE_TOKEN }}" /o:"mateodiezq0"
+          dotnet sonarscanner begin /k:"Mateodiezq0_dotnet-CI" /d:sonar.login="${{ secrets.SONARQUBE_TOKEN }}" /o:"mateodiezq0" /d:sonar.host.url="https://sonarcloud.io"
           dotnet build
           dotnet sonarscanner end /d:sonar.login="${{ secrets.SONARQUBE_TOKEN }}"
 
