@@ -80,7 +80,7 @@ jobs:
       - name: Move coverage report to public directory
         run: |
           mkdir -p ./frontend/public/coverage
-          mv ./TestResults/*/*.htm ./frontend/public/coverage/
+          mv ./TestResults/*/*.xml ./frontend/public/coverage/
           
       - name: Docker build
         id: docker-build
@@ -99,6 +99,12 @@ jobs:
         run: |
           docker tag dotnet-ci-app ${{ secrets.DOCKER_USERNAME }}/dotnet-ci-app
           docker push ${{ secrets.DOCKER_USERNAME }}/dotnet-ci-app
+
+      - name: Trigger Render deploy
+        if: success()
+        run: |
+          curl -X POST https://api.render.com/deploy/srv-d0vnlj0gjchc739vjft0?key=TbXHJLrCLeo
+
 
       # Enviar embed a Discord si la build pasa
       - name: Enviar embed a Discord si pasa
