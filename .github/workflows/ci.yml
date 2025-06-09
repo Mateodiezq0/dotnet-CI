@@ -80,7 +80,7 @@ jobs:
       - name: Move coverage report to public directory
         run: |
           mkdir -p ./frontend/public/coverage
-          mv ./TestResults/*/*.xml ./frontend/public/coverage/
+          mv ./TestResults/*/*.htm ./frontend/public/coverage/
           
       - name: Docker build
         id: docker-build
