@@ -81,6 +81,11 @@ jobs:
         run: |
           mkdir -p ./frontend/public/coverage
           mv ./TestResults/*/*.xml ./frontend/public/coverage/
+      
+      - name: List TestResults files
+        run: |
+          ls -R ./frontend/public/coverage/
+
           
       - name: Docker build
         id: docker-build
