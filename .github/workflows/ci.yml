@@ -77,6 +77,11 @@ jobs:
         run: |
           ls -R ./TestResults
 
+      - name: Move coverage report to public directory
+        run: |
+          mkdir -p ./frontend/public/coverage
+          mv ./TestResults/*/*.xml ./frontend/public/coverage/
+          
       - name: Docker build
         id: docker-build
         continue-on-error: true
