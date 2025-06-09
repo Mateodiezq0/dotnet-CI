@@ -57,11 +57,12 @@ jobs:
           DOTNET_ROOT: /home/runner/.dotnet
           PATH: /home/runner/.dotnet/tools:/usr/bin:/bin
 
-      - name: Run SonarCloud analysis
+      - name: Run SonarQube analysis
         run: |
-          dotnet sonarscanner begin /k:"dotnet-ci" /d:sonar.login="${{ secrets.SONARQUBE_TOKEN }}" /d:sonar.organization="mateodiezq0"
+          dotnet sonarscanner begin /k:"dotnet-ci" /d:sonar.login="${{ secrets.SONARQUBE_TOKEN }}" /o:"mateodiezq0"
           dotnet build
           dotnet sonarscanner end /d:sonar.login="${{ secrets.SONARQUBE_TOKEN }}"
+
 
 
       # Marcar como fallido si los tests fallaron
