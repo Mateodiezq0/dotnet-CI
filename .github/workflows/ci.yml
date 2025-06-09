@@ -1,4 +1,4 @@
-name: .NET CI + Coverage + SonarQube
+name: .NET CI + Coverage
 
 on:
   push:
@@ -48,22 +48,6 @@ jobs:
           dotnet test tests/dotnet-ci.Tests.csproj --no-build --collect:"XPlat Code Coverage" 2>&1 | tee test-output.log
           echo "EXIT_CODE=${PIPESTATUS[0]}" >> $GITHUB_ENV
           echo "TEST_LOG=${PIPESTATUS[0]}" >> $GITHUB_ENV
-
-      # Paso SonarQube Scanner para análisis estático de código
-      - name: Install SonarScanner for .NET
-        run: |
-          dotnet tool install --global dotnet-sonarscanner
-        env:
-          DOTNET_ROOT: /home/runner/.dotnet
-          PATH: /home/runner/.dotnet/tools:/usr/bin:/bin
-
-      - name: Run SonarQube analysis
-        run: |
-          dotnet sonarscanner begin /k:"Mateodiezq0_dotnet-CI" /d:sonar.login="${{ secrets.SONARQUBE_TOKEN }}" /o:"mateodiezq0" /d:sonar.host.url="https://sonarcloud.io"
-          dotnet build
-          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONARQUBE_TOKEN }}"
-
-
 
       # Marcar como fallido si los tests fallaron
       - name: Marcar como fallido si los tests fallaron
