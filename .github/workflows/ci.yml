@@ -63,7 +63,7 @@ jobs:
           DOTNET_ROOT: /home/runner/.dotnet
           PATH: /home/runner/.dotnet/tools:/usr/bin:/bin
 
-      - name: Generate coverage report
+      - name: Generate coverage reporttt
         id: coverage
         continue-on-error: true
         run: |
