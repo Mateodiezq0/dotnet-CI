@@ -41,11 +41,11 @@ jobs:
         run: |
           dotnet build --no-restore 2>&1 | tee build.log
           echo "EXIT_CODE_BUILD=${PIPESTATUS[0]}" >> $GITHUB_ENV
-
+      
       - name: Run tests with coverage and capture logs
         id: test
         run: |
-          dotnet test tests/dotnet-ci.Tests.csproj --no-build --collect:"XPlat Code Coverage" 2>&1 | tee test-output.log
+          dotnet test tests/dotnet-ci.Tests.csproj --no-build --collect:"XPlat Code Coverage" --results-directory ./TestResults 2>&1 | tee test-output.log
           echo "EXIT_CODE=${PIPESTATUS[0]}" >> $GITHUB_ENV
           echo "TEST_LOG=${PIPESTATUS[0]}" >> $GITHUB_ENV
 
@@ -63,16 +63,20 @@ jobs:
           DOTNET_ROOT: /home/runner/.dotnet
           PATH: /home/runner/.dotnet/tools:/usr/bin:/bin
 
-      - name: Generate coverage reporttt
+      - name: Generate coverage report
         id: coverage
         continue-on-error: true
         run: |
           # Cambiar la ruta a una relativa, si es necesario
           reportgenerator \
-            -reports:tests/TestResults/**/coverage.cobertura.xml \
+            -reports:TestResults/**/coverage.cobertura.xml \
             -targetdir:coverage-report \
             -reporttypes:Html 2>&1 | tee coverage.log
 
+      - name: List TestResults files
+        run: |
+          ls -R ./TestResults
+                
       # Enviar embed a Discord si la build pasa
       - name: Enviar embed a Discord si pasa
         if: success()
