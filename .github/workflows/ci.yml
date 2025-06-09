@@ -69,7 +69,7 @@ jobs:
         run: |
           # Cambiar la ruta a una relativa, si es necesario
           reportgenerator \
-            -reports:TestResults/**/coverage.cobertura.xml \
+            -reports:tests/TestResults/**/coverage.cobertura.xml \
             -targetdir:coverage-report \
             -reporttypes:Html 2>&1 | tee coverage.log
 
