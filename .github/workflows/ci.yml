@@ -76,7 +76,25 @@ jobs:
       - name: List TestResults files
         run: |
           ls -R ./TestResults
-                
+
+      - name: Docker build
+        id: docker-build
+        continue-on-error: true
+        run: |
+          docker build -t dotnet-ci-app . 2>&1 | tee docker-build.log
+
+      - name: Login to Docker Hub
+        if: success()
+        run: |
+          echo "Logging in to Docker Hub..." 
+          echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin 2>&1 | tee docker-login.log
+
+      - name: Docker push
+        if: success()
+        run: |
+          docker tag dotnet-ci-app ${{ secrets.DOCKER_USERNAME }}/dotnet-ci-app
+          docker push ${{ secrets.DOCKER_USERNAME }}/dotnet-ci-app
+
       # Enviar embed a Discord si la build pasa
       - name: Enviar embed a Discord si pasa
         if: success()
