@@ -80,12 +80,12 @@ jobs:
       - name: Move coverage report to public directory (front)
         run: |
           mkdir -p ./frontend/public/coverage
-          mv ./TestResults/*/*.xml ./frontend/public/coverage/
+          cp ./TestResults/*/*.xml ./frontend/public/coverage/
 
       - name: Move coverage report to public directory (back)
         run: |
-          mkdir -p ./frontend/public/coverage
-          mv ./TestResults/*/*.xml ./src/coverage/
+          mkdir -p ./src/coverage/
+          cp ./TestResults/*/*.xml ./src/coverage/
 
       - name: List TestResults files
         run: |
