@@ -121,7 +121,7 @@ La aplicación incluye una calculadora básica que demuestra patrones de inyecci
 - Base image: `mcr.microsoft.com/dotnet/aspnet:7.0` (más liviana)  
 - Copia de archivos publicados  
 - Inclusión de reportes de cobertura  
-- Configuración de entry point  
+- Configuracion de entry point  
   
 ## 🧪 Testing y Calidad  
   
