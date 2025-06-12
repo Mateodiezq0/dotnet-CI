@@ -91,12 +91,12 @@ jobs:
       - name: Move coverage report to public directory (front)
         run: |
           mkdir -p ./frontend/public/coverage
-          cp ./TestResults/*/*.html ./frontend/public/coverage/
+          cp ./coverage-report/*/*.html ./frontend/public/coverage/
 
       - name: Move coverage report to public directory (back)
         run: |
           mkdir -p ./src/coverage/
-          cp ./TestResults/*/*.html ./src/coverage/
+          cp ./coverage-report/*/*.html ./src/coverage/
 
       # Verificar si el archivo HTML está en la ubicación correcta
       - name: List HTML coverage files
