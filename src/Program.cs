@@ -3,26 +3,27 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace dotnet_ci
 {
-    public class Calculadora
-    {
-        public int Sumar(int a, int b) => a + b;
-    }
-
     public class Program
     {
+        // Palabra objetivo (en un caso real se podría hacer dinámico o cargar desde una base de datos)
+        private static readonly string PalabraObjetivo = "svelte";
+
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Agregar los servicios necesarios al contenedor de dependencias
+            // Obtener la URL del frontend desde una variable de entorno
+            var frontendUrl = builder.Configuration["FRONTEND_URL"] ?? "http://localhost:5174"; // Valor por defecto
+
+            // Agregar servicios necesarios al contenedor de dependencias **antes** de Build()
             builder.Services.AddSingleton<Calculadora>();
 
             // Configuración de CORS para permitir solicitudes del frontend
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowLocalhost", policy =>
+                options.AddPolicy("AllowFrontend", policy =>
                 {
-                    policy.WithOrigins("http://localhost:5174")  // Cambia el puerto si tu frontend está en otro
+                    policy.WithOrigins(frontendUrl)  // Usando la variable de entorno
                           .AllowAnyMethod()
                           .AllowAnyHeader();
                 });
@@ -31,7 +32,7 @@ namespace dotnet_ci
             var app = builder.Build();
 
             // Aplicar la política de CORS
-            app.UseCors("AllowLocalhost");
+            app.UseCors("AllowFrontend");
 
             // Definir un endpoint para retornar "Hola CI!"
             app.MapGet("/", () => "Hola CI!");
@@ -43,8 +44,31 @@ namespace dotnet_ci
                 return Results.Ok(resultado);
             });
 
+            // Endpoint para comprobar la palabra (Wordle básico)
+            app.MapGet("/comprobar", (string palabra) =>
+            {
+                if (string.IsNullOrEmpty(palabra))
+                {
+                    return Results.BadRequest("La palabra no puede estar vacía");
+                }
+
+                if (palabra.Equals(PalabraObjetivo, StringComparison.OrdinalIgnoreCase))
+                {
+                    return Results.Ok("¡Has adivinado la palabra!");
+                }
+                else
+                {
+                    return Results.Ok("Intenta de nuevo.");
+                }
+            });
+
             // Iniciar la aplicación
             app.Run();
         }
+    }
+
+    public class Calculadora
+    {
+        public int Sumar(int a, int b) => a + b;
     }
 }

@@ -1,19 +1,21 @@
-# Etapa 1: Construcción del backend (.NET)
+# Etapa 1: build
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+WORKDIR /src
+
+# Copiar el archivo .csproj y restaurar las dependencias
+COPY src/dotnet-ci.csproj .
+RUN dotnet restore
+
+# Copiar el resto del código y compilar el proyecto
+COPY src/. ./
+RUN dotnet publish -c Release -o /app/publish
+
+# Etapa 2: runtime
+FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS runtime
 WORKDIR /app
 
-COPY . .
-RUN dotnet publish src/dotnet-ci.csproj -c Release -o /app/publish
-
-# Etapa 2: Runtime (Ejecutar la aplicación .NET)
-FROM mcr.microsoft.com/dotnet/aspnet:7.0
-WORKDIR /app
-
-# Copiar el backend publicado
+# Copiar los archivos publicados desde la etapa de build
 COPY --from=build /app/publish .
 
-# Exponer el puerto que usa la aplicación .NET
-EXPOSE 80
-
-# Configurar el entrypoint para la aplicación .NET
+# Configurar el contenedor para ejecutar la aplicación
 ENTRYPOINT ["dotnet", "dotnet-ci.dll"]
