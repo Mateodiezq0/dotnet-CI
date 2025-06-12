@@ -7,6 +7,6 @@ public class CalculadoraTests
     public void Sumar_DebeSumarCorrectamente()
     {
         var calc = new Calculadora();
-        Assert.Equal(4, calc.Sumar(2, 2));
+        Assert.Equal(7, calc.Sumar(2, 2));
     }
 }
