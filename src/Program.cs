@@ -68,7 +68,14 @@ namespace dotnet_ci
             app.MapGet("/coverage/coverage.cobertura.xml", () =>
             {
                 var filePath = Path.Combine(Directory.GetCurrentDirectory(), "frontend", "public", "coverage", "coverage.cobertura.xml");
-                return Results.File(filePath, "application/xml");
+                if (File.Exists(filePath))
+                {
+                    return Results.File(filePath, "application/xml");
+                }
+                else
+                {
+                    return Results.NotFound("Archivo no encontrado.");
+                }
             });
 
             // Iniciar la aplicación

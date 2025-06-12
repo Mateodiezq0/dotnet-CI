@@ -3,7 +3,7 @@
   import { onMount } from "svelte";
 
   let mensaje: string = "";  // Mensaje de respuesta del servidor
-  let xmlUrl = `${import.meta.env.VITE_BACKEND_URL}/coverage/coverage.cobertura.xml`;  // URL del XML en el backend
+  let xmlUrl = `https://dotnet-ci-app.onrender.com/coverage/coverage.cobertura.xml`;  // URL del XML en el backend
   let xmlContent: string = '';  // Para almacenar el contenido del XML
 
   // Realizamos la llamada a la API para obtener el contenido del XML cuando estamos en /coverage
