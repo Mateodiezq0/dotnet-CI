@@ -87,9 +87,13 @@ jobs:
           mkdir -p ./src/coverage/
           cp ./TestResults/*/*.xml ./src/coverage/
 
-      - name: List TestResults files
+      - name: List TestResults files (front)
         run: |
           ls -R ./frontend/public/coverage/
+
+      - name: List TestResults files (back)
+        run: |
+          ls -R ./src/coverage/
 
           
       - name: Docker build
