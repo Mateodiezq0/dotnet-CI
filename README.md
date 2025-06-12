@@ -128,7 +128,7 @@ La aplicación incluye una calculadora básica que demuestra patrones de inyecci
 ### Unit Testing El proyecto incluye:  
 - Tests xUnit para la funcionalidad de calculadora  
 - Coverlet collector para análisis de cobertura  
-- Validación automática de lógica de negocio  
+- Validacion automática de lógica de negocio  
   
 ### Code Coverage  
 - Generación automática de reportes HTML  
