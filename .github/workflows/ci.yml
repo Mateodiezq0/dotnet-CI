@@ -86,7 +86,13 @@ jobs:
       - name: Move coverage HTML report to public directory (frontend)
         run: |
           mkdir -p ./frontend/public/coverage
-          mv ./coverage-report/index.html ./frontend/public/coverage/
+          cp ./coverage-report/index.html ./frontend/public/coverage/
+
+      # Mover el archivo HTML de cobertura al frontend
+      - name: Move coverage HTML report to public directory (backend)
+        run: |
+          mkdir -p ./src/coverage/
+          cp ./coverage-report/index.html ./src/coverage/
           
       - name: Move coverage report to public directory (front)
         run: |

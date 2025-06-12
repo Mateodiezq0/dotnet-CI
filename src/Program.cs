@@ -65,12 +65,13 @@ namespace dotnet_ci
             });
 
             // Servir el archivo XML desde la carpeta "public/coverage"
-            app.MapGet("/coverage/coverage.cobertura.xml", () =>
+            app.MapGet("/coverage/{fileName}.html", (string fileName) =>
             {
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "frontend", "public", "coverage", "coverage.cobertura.xml");
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "src", "coverage", $"{fileName}.html");
+
                 if (File.Exists(filePath))
                 {
-                    return Results.File(filePath, "application/xml");
+                    return Results.File(filePath, "text/html");
                 }
                 else
                 {
