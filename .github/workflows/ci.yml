@@ -54,7 +54,7 @@ jobs:
         if: env.EXIT_CODE != '0'
         run: exit 1
 
-      - name: Install ReportGeneratorr
+      - name: Install ReportGenerator
         id: reportgen-install
         continue-on-error: true
         run: |
@@ -62,21 +62,32 @@ jobs:
         env:
           DOTNET_ROOT: /home/runner/.dotnet
           PATH: /home/runner/.dotnet/tools:/usr/bin:/bin
-
-      - name: Generate coverage report
+          
+      - name: Generate coverage report (HTML)
         id: coverage
         continue-on-error: true
         run: |
-          # Cambiar la ruta a una relativa, si es necesario
           reportgenerator \
             -reports:TestResults/**/coverage.cobertura.xml \
             -targetdir:coverage-report \
             -reporttypes:Html 2>&1 | tee coverage.log
 
+
       - name: List TestResults files
         run: |
           ls -R ./TestResults
 
+
+      - name: List coverage report files
+        run: |
+          ls -R ./coverage-report
+
+      # Mover el archivo HTML de cobertura al frontend
+      - name: Move coverage HTML report to public directory (frontend)
+        run: |
+          mkdir -p ./frontend/public/coverage
+          mv ./coverage-report/index.html ./frontend/public/coverage/
+          
       - name: Move coverage report to public directory (front)
         run: |
           mkdir -p ./frontend/public/coverage
@@ -87,7 +98,8 @@ jobs:
           mkdir -p ./src/coverage/
           cp ./TestResults/*/*.xml ./src/coverage/
 
-      - name: List TestResults files (front)
+      # Verificar si el archivo HTML está en la ubicación correcta
+      - name: List HTML coverage files
         run: |
           ls -R ./frontend/public/coverage/
 
