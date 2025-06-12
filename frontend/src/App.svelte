@@ -1,36 +1,60 @@
 <script lang="ts">
+  import { Router, Route, Link } from 'svelte-routing';
   import { onMount } from "svelte";
-  import ReporteCobertura from './ReporteCobertura.svelte';  // Asegúrate de que la ruta sea correcta
 
-  let palabra: string = "";  // La palabra que el usuario ingresa
   let mensaje: string = "";  // Mensaje de respuesta del servidor
+  let xmlUrl = `${import.meta.env.VITE_BACKEND_URL}/coverage/coverage.cobertura.xml`;  // URL del XML en el backend
+  let xmlContent: string = '';  // Para almacenar el contenido del XML
 
-  // Leer la URL del backend desde la variable de entorno
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
-  // Realizamos la llamada a la API para comprobar la palabra al hacer clic
-  const comprobarPalabra = async () => {
-    //const response = await fetch(`${backendUrl}/comprobar?palabra=${palabra}`);
-
-    const response = await fetch(`${backendUrl}/comprobar?palabra=${palabra}`);
-      
+  // Realizamos la llamada a la API para obtener el contenido del XML cuando estamos en /coverage
+  const obtenerXML = async () => {
+    const response = await fetch(xmlUrl);
     if (response.ok) {
-      mensaje = await response.text(); // Si la respuesta es exitosa, asignamos el mensaje
+      xmlContent = await response.text();  // Guardamos el contenido del XML
     } else {
-      mensaje = "La palabra es incorrecta."; // Si hay error, asignamos un mensaje de error
+      xmlContent = "Error al cargar el archivo XML.";
     }
   };
 </script>
 
 <main>
-  <h1>Comprobador de Palabra</h1>
-  <div>
-    <input bind:value={palabra} placeholder="Introduce una palabra " />
-    <button on:click={comprobarPalabra}>Comprobar</button>
-  </div>
-  <p>{mensaje}</p>
+  <!-- Definir rutas -->
+  <Router>
+    <!-- Enlaces de navegación -->
+    <nav>
+      <Link to="/">Inicio</Link>
+      <Link to="/coverage">Cobertura</Link>
+    </nav>
 
-  <ReporteCobertura />
+    <!-- Rutas -->
+    <Route path="/" let:params>
+      <h1>Bienvenido al Comprobador de Palabra</h1>
+      <div>
+        <input bind:value={mensaje} placeholder="Introduce una palabra" />
+        <button on:click={async () => {
+          const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/comprobar?palabra=${mensaje}`);
+          if (response.ok) {
+            mensaje = await response.text();
+          } else {
+            mensaje = "La palabra es incorrecta.";
+          }
+        }}>Comprobar</button>
+      </div>
+    </Route>
+
+    <Route path="/coverage" let:params>
+      <h1>Reporte de Cobertura</h1>
+      <!-- Cargar y mostrar XML solo si estamos en /coverage -->
+      <div>
+        {#if xmlContent}
+          <pre>{xmlContent}</pre> <!-- Mostrar XML en un formato preformateado -->
+        {:else}
+          <p>Cargando XML...</p>
+          <button on:click={obtenerXML}>Cargar Reporte de Cobertura</button>
+        {/if}
+      </div>
+    </Route>
+  </Router>
 </main>
 
 <style>
@@ -55,5 +79,15 @@
 
   .gris {
     color: gray;
+  }
+
+  nav {
+    margin: 20px 0;
+  }
+
+  nav a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: #000;
   }
 </style>
