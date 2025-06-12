@@ -6,7 +6,7 @@
 Proyecto de integración continua con .NET 7, Svelte + TypeScript y Docker.    
 CI/CD completo con GitHub Actions y deploy a Render.  
 ## Workflow  
-![Untitled design (2)](https://github.com/user-attachments/assets/8de605df-52e8-45d7-a248-f6f88cb36df7)
+![Untitled design (3)](https://github.com/user-attachments/assets/dabdad02-7371-4e4a-8563-2e2f7a2c04ed)
 
 ## 🔗 Demo  
   
