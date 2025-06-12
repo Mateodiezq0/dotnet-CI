@@ -113,7 +113,7 @@ La aplicación incluye una calculadora básica que demuestra patrones de inyecci
 ### Stage 1: Build  
 - Base image: `mcr.microsoft.com/dotnet/sdk:7.0`  
 - Copia y restauración de dependencias  
-- Compilación y publicación en modo Release  
+- Compilacion y publicación en modo Release  
   
 ### Stage 2: Runtime    
 - Base image: `mcr.microsoft.com/dotnet/aspnet:7.0` (más liviana)  
