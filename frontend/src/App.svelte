@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import ReporteCobertura from './ReporteCobertura.svelte';  // Asegúrate de que la ruta sea correcta
 
   let palabra: string = "";  // La palabra que el usuario ingresa
   let mensaje: string = "";  // Mensaje de respuesta del servidor
@@ -28,6 +29,8 @@
     <button on:click={comprobarPalabra}>Comprobar</button>
   </div>
   <p>{mensaje}</p>
+
+  <ReporteCobertura />
 </main>
 
 <style>
