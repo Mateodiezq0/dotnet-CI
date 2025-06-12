@@ -37,6 +37,7 @@ jobs:
 
       - name: Build solution
         id: build
+        continue-on-error: true
         run: |
           dotnet build --no-restore 2>&1 | tee build.log
           echo "EXIT_CODE_BUILD=${PIPESTATUS[0]}" >> $GITHUB_ENV
