@@ -73,7 +73,7 @@ La aplicación incluye una calculadora básica que demuestra patrones de inyecci
 #### 2. Preparación del Entorno El workflow configura:  
 - Ubuntu como runner environment  
 - .NET 7.0 SDK installation  
-- [13](#3-12)  Cache inteligente de dependencias NuGet para optimizar tiempos de build  
+- Cache inteligente de dependencias NuGet para optimizar tiempos de build  
   
 #### 3. Build y Testing El proceso incluye:  
 - `dotnet restore`: Restauración de dependencias con logging  
@@ -84,7 +84,7 @@ La aplicación incluye una calculadora básica que demuestra patrones de inyecci
 #### 4. Análisis de Cobertura Generación de reportes:  
 - Instalación de ReportGenerator tool  
 - Conversión de archivos Cobertura XML a HTML  
-- [16](#3-15)  Copia de reportes a directorios frontend y backend para accesibilidad  
+- Copia de reportes a directorios frontend y backend para accesibilidad  
   
 #### 5. Containerización Proceso Docker:  
 - Build de imagen con tag `dotnet-ci-app`  
