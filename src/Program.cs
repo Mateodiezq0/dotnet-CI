@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace dotnet_ci
 {
@@ -60,6 +62,13 @@ namespace dotnet_ci
                 {
                     return Results.Ok("Intenta de nuevo.");
                 }
+            });
+
+            // Servir el archivo XML desde la carpeta "public/coverage"
+            app.MapGet("/coverage/coverage.cobertura.xml", () =>
+            {
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "frontend", "public", "coverage", "coverage.cobertura.xml");
+                return Results.File(filePath, "application/xml");
             });
 
             // Iniciar la aplicación
