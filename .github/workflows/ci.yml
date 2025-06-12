@@ -77,11 +77,16 @@ jobs:
         run: |
           ls -R ./TestResults
 
-      - name: Move coverage report to public directory
+      - name: Move coverage report to public directory (front)
         run: |
           mkdir -p ./frontend/public/coverage
           mv ./TestResults/*/*.xml ./frontend/public/coverage/
-      
+
+      - name: Move coverage report to public directory (back)
+        run: |
+          mkdir -p ./frontend/public/coverage
+          mv ./TestResults/*/*.xml ./src/coverage/
+
       - name: List TestResults files
         run: |
           ls -R ./frontend/public/coverage/
