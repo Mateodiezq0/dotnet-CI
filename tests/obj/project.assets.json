@@ -1715,7 +1715,10 @@
         },
         "runtime": {
           "bin/placeholder/dotnet-ci.dll": {}
-        }
+        },
+        "frameworkReferences": [
+          "Microsoft.AspNetCore.App"
+        ]
       }
     }
   },

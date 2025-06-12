@@ -13,3 +13,15 @@ C:\Github\dotnet-CI\src\obj\Debug\net7.0\refint\dotnet-ci.dll
 C:\Github\dotnet-CI\src\obj\Debug\net7.0\dotnet-ci.pdb
 C:\Github\dotnet-CI\src\obj\Debug\net7.0\dotnet-ci.genruntimeconfig.cache
 C:\Github\dotnet-CI\src\obj\Debug\net7.0\ref\dotnet-ci.dll
+C:\Github\dotnet-CI\src\bin\Debug\net7.0\dotnet-ci.staticwebassets.endpoints.json
+C:\Github\dotnet-CI\src\obj\Debug\net7.0\dotnet-ci.MvcApplicationPartsAssemblyInfo.cache
+C:\Github\dotnet-CI\src\obj\Debug\net7.0\scopedcss\bundle\dotnet-ci.styles.css
+C:\Github\dotnet-CI\src\obj\Debug\net7.0\staticwebassets.build.json
+C:\Github\dotnet-CI\src\obj\Debug\net7.0\staticwebassets.development.json
+C:\Github\dotnet-CI\src\obj\Debug\net7.0\staticwebassets.build.endpoints.json
+C:\Github\dotnet-CI\src\obj\Debug\net7.0\staticwebassets\msbuild.dotnet-ci.Microsoft.AspNetCore.StaticWebAssets.props
+C:\Github\dotnet-CI\src\obj\Debug\net7.0\staticwebassets\msbuild.dotnet-ci.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
+C:\Github\dotnet-CI\src\obj\Debug\net7.0\staticwebassets\msbuild.build.dotnet-ci.props
+C:\Github\dotnet-CI\src\obj\Debug\net7.0\staticwebassets\msbuild.buildMultiTargeting.dotnet-ci.props
+C:\Github\dotnet-CI\src\obj\Debug\net7.0\staticwebassets\msbuild.buildTransitive.dotnet-ci.props
+C:\Github\dotnet-CI\src\obj\Debug\net7.0\staticwebassets.pack.json

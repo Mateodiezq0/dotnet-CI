@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "D6Z1LCXXRBn5AZ8JBiv2iv76P84wfp5dHo4JdMhrnxA=",
+  "Source": "dotnet-ci",
+  "BasePath": "_content/dotnet-ci",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
