@@ -77,42 +77,31 @@ jobs:
         run: |
           ls -R ./TestResults
 
-
       - name: List coverage report files
         run: |
           ls -R ./coverage-report
 
-      # Mover el archivo HTML de cobertura al frontend
-      - name: Move coverage HTML report to public directory (frontend)
+      # Copiar toda la carpeta de cobertura al frontend
+      - name: Copy coverage report to frontend public directory
         run: |
           mkdir -p ./frontend/public/coverage
-          cp ./coverage-report/index.html ./frontend/public/coverage/
+          cp -r ./coverage-report/* ./frontend/public/coverage/
 
-      # Mover el archivo HTML de cobertura al frontend
-      - name: Move coverage HTML report to public directory (backend)
+      # Copiar toda la carpeta de cobertura al backend
+      - name: Copy coverage report to backend src directory
         run: |
-          mkdir -p ./src/coverage/
-          cp ./coverage-report/index.html ./src/coverage/
-          
-      - name: Move coverage report to public directory (front)
-        run: |
-          mkdir -p ./frontend/public/coverage
-          cp ./coverage-report/*.html ./frontend/public/coverage/
+          mkdir -p ./src/coverage
+          cp -r ./coverage-report/* ./src/coverage/
 
-      - name: Move coverage report to public directory (back)
-        run: |
-          mkdir -p ./src/coverage/
-          cp ./coverage-report/*.html ./src/coverage/
-
-      # Verificar si el archivo HTML está en la ubicación correcta
-      - name: List HTML coverage files
+      # Verificar si los archivos HTML de cobertura están en la ubicación correcta (frontend)
+      - name: List coverage files in frontend
         run: |
           ls -R ./frontend/public/coverage/
 
-      - name: List TestResults files (back)
+      # Verificar si los archivos HTML de cobertura están en la ubicación correcta (backend)
+      - name: List coverage files in backend
         run: |
           ls -R ./src/coverage/
-
           
       - name: Docker build
         id: docker-build
