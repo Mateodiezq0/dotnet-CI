@@ -105,10 +105,15 @@ jobs:
           docker tag dotnet-ci-app ${{ secrets.DOCKER_USERNAME }}/dotnet-ci-app
           docker push ${{ secrets.DOCKER_USERNAME }}/dotnet-ci-app
 
-      - name: Trigger Render deploy
+      - name: Trigger Render deploy (frontend)
         if: success()
         run: |
-          curl -X POST https://api.render.com/deploy/srv-d0vnlj0gjchc739vjft0?key=TbXHJLrCLeo
+          curl -X POST ${{ secrets.RENDER_FRONT }}
+      
+      - name: Trigger Render deploy (backend)
+        if: success()
+        run: |
+          curl -X POST ${{ secrets.RENDER_BACK }}
 
 
       # Enviar embed a Discord si la build pasa
